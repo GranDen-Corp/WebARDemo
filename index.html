@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+<!-- three.js library -->
+<script src='./build/three.min.js'></script>
+<script src="./js/libs/stats.min.js"></script>
+<!-- <script src="./three.js/examples/vendor/three.js/build/three.module.js"></script>
+ -->
+<!-- ar.js -->
+<script src="./build/ar.js"></script>
+<script>THREEx.ArToolkitContext.baseURL = './'</script>
+
+<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+    <div style='position: absolute; top: 10px; width:100%; text-align: center; z-index: 1;'>
+        <a href="https://github.com/jeromeetienne/AR.js/" target="_blank">AR.js</a> - three.js mobile performance
+        <br />
+        Contact me any time at <a href='https://twitter.com/jerome_etienne' target='_blank'>@jerome_etienne</a>
+    </div>
+    <script type="module">
+        //////////////////////////////////////////////////////////////////////////////////
+        //		Init
+        //////////////////////////////////////////////////////////////////////////////////
+        import * as THREE from './build/three.module.js';
+        import { FBXLoader } from './jsm/loaders/FBXLoader.js';
+        import { VRMLoader } from './jsm/loaders/VRMLoader.js';
+        import { OrbitControls } from './jsm/controls/OrbitControls.js';
+
+        const minFPS = 24, maxFPS = 60;
+        const millisecond = 1000;
+        var lastTimeMsec = null;
+
+        // array of functions for the rendering loop
+        var onRenderFcts = [];
+        var clock = new THREE.Clock();
+        var camera, renderer, controls;
+        var arToolkitContext, arToolkitSource;
+
+        const debug_mode = false;
+
+        const fbxFile = 'Cha_AJOJO_001_test_191025.fbx';
+        const pngFile = 'Cha_AJOJO_1001.png';
+
+        init();
+        animate();
+
+        function init() {
+            const container = document.body;
+
+            // init scene 
+            var scene = new THREE.Scene();
+
+            // Create a camera
+            camera = new THREE.Camera();
+            scene.add(camera);
+
+            // init renderer
+            renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                alpha: true
+            });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            container.appendChild(renderer.domElement);
+
+
+            if (debug_mode) {
+                controls = new OrbitControls(camera, renderer.domElement);
+                controls.update();
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////
+            //          handle arToolkitSource
+            ////////////////////////////////////////////////////////////////////////////////
+            if (debug_mode) {
+                arToolkitSource = new THREEx.ArToolkitSource({
+                    sourceType: 'image',
+                    sourceUrl: THREEx.ArToolkitContext.baseURL + 'data/images/HIRO.jpg',
+                    sourceWidth: window.innerWidth,
+                    sourceHeight: window.innerHeight,
+                    displayWidth: window.innerWidth,
+                    displayHeight: window.innerHeight
+                });
+            }
+            else {
+                arToolkitSource = new THREEx.ArToolkitSource({
+                    sourceType: 'webcam',
+                    sourceWidth: window.innerWidth,
+                    sourceHeight: window.innerHeight,
+                    displayWidth: window.innerWidth,
+                    displayHeight: window.innerHeight
+                });
+            }
+
+            arToolkitSource.init(function onReady() {
+                onResize();
+            });
+
+            ////////////////////////////////////////////////////////////////////////////////
+            //          initialize arToolkitContext
+            ////////////////////////////////////////////////////////////////////////////////
+
+
+            // create atToolkitContext
+            arToolkitContext = new THREEx.ArToolkitContext({
+                cameraParametersUrl: THREEx.ArToolkitContext.baseURL + 'data/data/camera_para.dat',
+                detectionMode: 'mono',
+                maxDetectionRate: 30,
+                canvasWidth: window.innerWidth,
+                canvasHeight: window.innerHeight,
+                // canvasWidth: 80 * 3,
+                // canvasHeight: 60 * 3,
+            });
+            // initialize it
+            arToolkitContext.init(function onCompleted() {
+                // copy projection matrix to camera
+                camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
+            });
+
+            // update artoolkit on every frame
+            onRenderFcts.push(function () {
+                if (arToolkitSource.ready === false) return
+
+                arToolkitContext.update(arToolkitSource.domElement)
+            });
+
+
+            ////////////////////////////////////////////////////////////////////////////////
+            //          Create a ArMarkerControls
+            ////////////////////////////////////////////////////////////////////////////////
+
+            var markerRoot = new THREE.Group();
+            scene.add(markerRoot)
+            var artoolkitMarker = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+                type: 'pattern',
+                patternUrl: THREEx.ArToolkitContext.baseURL + 'data/data/patt.hiro',
+                // patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.kanji',
+            })
+
+            // build a smoothedControls
+            var smoothedRoot = new THREE.Group();
+            scene.add(smoothedRoot)
+            var smoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
+                lerpPosition: 0.4,
+                lerpQuaternion: 0.3,
+                lerpScale: 1,
+            });
+            onRenderFcts.push(function (delta) {
+                smoothedControls.update(markerRoot);
+            });
+
+            //////////////////////////////////////////////////////////////////////////////////
+            //		add an object in the scene
+            //////////////////////////////////////////////////////////////////////////////////
+
+            var arWorldRoot = smoothedRoot;
+            var manager = new THREE.LoadingManager(
+                function () {
+                    console.log('Loading complete!');
+                }, function (url, itemsLoaded, itemsTotal) {
+                    console.log('Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+                }, function (url) {
+                    console.log('There was an error loading ' + url);
+                }
+            );
+            manager.onStart = function (url, itemsLoaded, itemsTotal) {
+                console.log('Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+            };
+
+
+
+            var textureLoader = new THREE.TextureLoader(manager);
+            var fbxLoader = new FBXLoader(manager);
+
+            fbxLoader.load(fbxFile, function (model) {
+                model.mixer = new THREE.AnimationMixer(model);
+
+                var animations = model.animations;
+                animations.forEach(function (clip) {
+                    var action = model.mixer.clipAction(clip);
+                    action.play();
+                });
+
+                onRenderFcts.push(function (delta) {
+                    model.mixer.update(delta);
+                });
+
+                model.traverse(function (child) {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+
+                        textureLoader.load(pngFile,
+                            function (texture) {
+                                child.material = new THREE.MeshBasicMaterial({
+                                    map: texture,
+                                    skinning: true
+                                });
+                            },
+                            undefined,
+                            undefined);
+                    }
+                });
+                console.log(model);
+
+                model.scale.set(0.0075, 0.0075, 0.0075);
+                arWorldRoot.add(model);
+            }, undefined,
+                function (error) {
+                    console.error(error);
+                });
+
+            // handle resize
+            window.addEventListener('resize', function () {
+                onResize();
+            });
+
+            //////////////////////////////////////////////////////////////////////////////////
+            //		render the whole thing on the page
+            //////////////////////////////////////////////////////////////////////////////////
+            var stats = new Stats();
+            container.appendChild(stats.dom);
+            // render the scene
+            onRenderFcts.push(function () {
+                renderer.render(scene, camera);
+                stats.update();
+            });
+        }
+
+
+        function onResize() {
+            arToolkitSource.onResizeElement();
+            arToolkitSource.copyElementSizeTo(renderer.domElement)
+            if (arToolkitContext.arController !== null) {
+                arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)
+            }
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate(nowMsec) {
+            // keep looping
+            requestAnimationFrame(animate);
+            // measure time
+            lastTimeMsec = lastTimeMsec || nowMsec - millisecond / maxFPS;
+            var deltaMsec = Math.min(millisecond / minFPS, nowMsec - lastTimeMsec);
+            lastTimeMsec = nowMsec;
+            // call each update function
+            onRenderFcts.forEach(function (onRenderFct) {
+                onRenderFct(toSecond(deltaMsec), toSecond(nowMsec));
+            })
+        }
+
+        function toSecond(msec) {
+            return msec / millisecond;
+        }
+    </script>
+</body>
