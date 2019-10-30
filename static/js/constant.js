@@ -1,12 +1,16 @@
+export const DEBUG = false;
+
 export const MODEL_FOLDER = `static/model/`;
 
-// export const fbxFile = `Cha_AJOJO_001_test_191025.fbx`;
-// export const pngFile = `Cha_AJOJO_1001.png`;
-// export const tgaFile = `Cha_AJOJO_1001.tga`;
+export const fbxFile = `Cha_AJOJO_001_test_191025.fbx`;
+export const pngFile = `Cha_AJOJO_1001.png`;
+export const tgaFile = `Cha_AJOJO_1001.tga`;
+export const exampleFile = `SambaDancing.fbx`;
 
-export const fbxFile = `${MODEL_FOLDER}Cha_AJOJO_001_test_191025.fbx`;
-export const pngFile = `${MODEL_FOLDER}Cha_AJOJO_1001.png`;
-export const tgaFile = `${MODEL_FOLDER}Cha_AJOJO_1001.tga`;
+// export const fbxFile = `${MODEL_FOLDER}Cha_AJOJO_001_test_191025.fbx`;
+// export const pngFile = `${MODEL_FOLDER}Cha_AJOJO_1001.png`;
+// export const tgaFile = `${MODEL_FOLDER}Cha_AJOJO_1001.tga`;
+// export const exampleFile = `${MODEL_FOLDER}Samba Dancing.fbx`;
 
 export const CAMERA_PARAM = `static/data/camera_para.dat`;
 

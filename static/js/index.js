@@ -1,10 +1,10 @@
 import * as THREE from './three/build/three.module.js';
 import * as CONSTANT from './constant.js';
 import { FBXLoader } from './three/examples/jsm/loaders/FBXLoader.js';
+import { TGALoader } from './three/examples/jsm/loaders/TGALoader.js';
 import { WEBGL } from './three/examples/jsm/WebGL.js';
 
-const debug = true;
-const modelScale = 0.0075;
+const modelScale = 0.01;
 const minFPS = 24, maxFPS = 60;
 const millisecond = 1000;
 const markerGroup = {};
@@ -15,15 +15,7 @@ const width = window.innerWidth, height = window.innerHeight;
 var lastTimeMsec = null;
 var scene, camera, renderer, stats;
 var arToolkitContext, arToolkitSource;
-var manager, fbxLoader, textureLoader;
-
-var OnResize = function () {
-    arToolkitSource.onResizeElement();
-    arToolkitSource.copyElementSizeTo(renderer.domElement);
-    if (arToolkitContext.arController !== null) {
-        arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)
-    }
-}
+var manager, fbxLoader, textureLoader, tgaLoader;
 
 export default function CLICK() {
 
@@ -37,12 +29,14 @@ export default function CLICK() {
         // init renderer
         renderer = new THREE.WebGLRenderer({
             antialias: true,
-            alpha: true
+            alpha: true,
+            // powerPreference: 'high-performance',
+            logarithmicDepthBuffer: true
         });
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(width, height);
         renderer.shadowMap.enabled = true;
-        renderer.debug.checkShaderErrors = true;
+        // renderer.debug.checkShaderErrors = true;
         container.appendChild(renderer.domElement);
 
         /*--------------------------------------------------------------------------------
@@ -54,7 +48,7 @@ export default function CLICK() {
 
         // Create a camera
         // camera = new THREE.Camera();
-        camera = new THREE.PerspectiveCamera(60, width / window.height, 0.1, 100);
+        camera = new THREE.PerspectiveCamera(100, width / window.height, 0.1, 35000);
         camera.name = 'Camera';
         scene.add(camera);
 
@@ -78,7 +72,7 @@ export default function CLICK() {
         --------------------------------------------------------------------------------*/
         // create atToolkitContext
         arToolkitContext = new THREEx.ArToolkitContext({
-            // debug: true,
+            // debug: CONSTANT.DEBUG,
             cameraParametersUrl: THREEx.ArToolkitContext.baseURL + CONSTANT.CAMERA_PARAM,
             detectionMode: 'mono'
         });
@@ -117,7 +111,7 @@ export default function CLICK() {
             });
         });
 
-        if (debug) {
+        if (CONSTANT.DEBUG) {
             stats = new Stats();
             container.appendChild(stats.dom);
         }
@@ -126,13 +120,10 @@ export default function CLICK() {
         onRenderFcts.push(function () {
             renderer.render(scene, camera);
 
-            if (debug) {
+            if (CONSTANT.DEBUG) {
                 stats.update();
             }
         });
-
-
-
     }
 
     CLICK.prototype.registerMarker = function (markerPatternFile) {
@@ -143,15 +134,24 @@ export default function CLICK() {
             markerRoot, {
             type: 'pattern',
             patternUrl: THREEx.ArToolkitContext.baseURL + markerPatternFile,
+            // changeMatrixMode: 'modelViewMatrix',
+            // minConfidence: 0.8,
+            // smooth: true,
+            // smoothCount: 5,
+            // smoothTolerance: 0.01,
+            // smoothThreshold: 2,
         });
 
         // build a smoothedControls
         var smoothedRoot = new THREE.Group();
         scene.add(smoothedRoot);
         var smoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
-            lerpPosition: 0.4,
-            lerpQuaternion: 0.3,
+            lerpPosition: 0.4, // 0.8
+            lerpQuaternion: 0.3, // 0.2
             lerpScale: 1,
+            // lerpStepDelay: 1 / 60,
+            // minVisibleDelay: 0.0,
+            // minUnvisibleDelay: 0.2,
         });
 
         markerGroup[markerRoot.uuid] = {
@@ -175,39 +175,39 @@ export default function CLICK() {
 
             model.traverse(function (child) {
                 if (child.isMesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
 
-                    textureLoader.load(texturePath,
-                        function (texture) {
-                            var newMat = new THREE.MeshBasicMaterial();
-                            for (var key in newMat.material) {
-                                newMat[key] = child.material[key];
-                            }
-                            newMat.map = texture;
-                            newMat.type = "MeshBasicMaterial";
-                            newMat.skinning = true;
-
-                            newMat.flatShading = true;
-                            newMat.polygonOffset = true;
-                            newMat.side = THREE.DoubleSide;
-                            newMat.combine = THREE.MixOperation;
-
-                            child.material = newMat;
-
-                            child.castShadow = true;
-                            child.receiveShadow = true;
-                        },
-                        undefined,
-                        function (error) {
-                            console.error(error);
-                        });
+                    if (texturePath) {
+                        textureLoader.load(texturePath,
+                            function (texture) {
+                                var newMat = new THREE.MeshBasicMaterial();
+                                for (var key in newMat.material) {
+                                    newMat[key] = child.material[key];
+                                }
+                                newMat.map = texture;
+                                newMat.type = "MeshBasicMaterial";
+                                newMat.skinning = true;
+                                newMat.flatShading = false;
+                                newMat.polygonOffset = true;
+                                newMat.side = THREE.DoubleSide;
+                                newMat.combine = THREE.MixOperation;
+                                child.material = newMat;
+                            },
+                            undefined,
+                            function (error) {
+                                console.error(error);
+                            });
+                    }
                 }
-                else if (!debug && child.name == "Cha_joint") {
+                else if (!CONSTANT.DEBUG && child.name == "Cha_joint") {
                     child.visible = false;
                 }
             });
 
-            if (debug) {
+            if (CONSTANT.DEBUG) {
                 model.translateZ(0.5);
+                model.translateY(0.5);
                 model.rotation.x = -Math.PI / 2;
             }
             model.scale.set(modelScale, modelScale, modelScale);
@@ -216,6 +216,21 @@ export default function CLICK() {
             function (error) {
                 console.error(error);
             });
+    }
+
+    CLICK.prototype.loadDemoBox = function (markerRoot, color) {
+        var markerScene = new THREE.Scene();
+        markerRoot.add(markerScene)
+        var geometry = new THREE.CubeGeometry(1, 1, 1);
+        var material = new THREE.MeshBasicMaterial({
+            transparent: true,
+            opacity: 0.5,
+            side: THREE.DoubleSide,
+            color: color
+        });
+        var mesh = new THREE.Mesh(geometry, material);
+        mesh.position.y = geometry.parameters.height / 2;
+        markerScene.add(mesh);
     }
 
     CLICK.prototype.initLoader = function () {
@@ -233,13 +248,13 @@ export default function CLICK() {
         };
 
         textureLoader = new THREE.TextureLoader(manager);
-        // textureLoader.setPath(CONSTANT.MODEL_FOLDER);
+        textureLoader.setPath(CONSTANT.MODEL_FOLDER);
 
         fbxLoader = new FBXLoader(manager);
-        // fbxLoader.setPath(CONSTANT.MODEL_FOLDER);
+        fbxLoader.setPath(CONSTANT.MODEL_FOLDER);
 
-        // tgaLoader = new TGALoader(manager);
-        // tgaLoader.setPath(CONSTANT.MODEL_FOLDER);
+        tgaLoader = new TGALoader(manager);
+        tgaLoader.setPath(CONSTANT.MODEL_FOLDER);
 
         // manager.addHandler(/\.tga$/i, tgaLoader);
     }
@@ -276,5 +291,15 @@ export default function CLICK() {
 
     function toSecond(msec) {
         return msec / millisecond;
+    }
+
+    var OnResize = function () {
+        if (arToolkitSource && arToolkitContext) {
+            arToolkitSource.onResizeElement();
+            arToolkitSource.copyElementSizeTo(renderer.domElement);
+            if (arToolkitContext.arController !== null) {
+                arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas)
+            }
+        }
     }
 }

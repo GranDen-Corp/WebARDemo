@@ -5,27 +5,19 @@
     <title>three.js webgl - glTF loader</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <link type="text/css" rel="stylesheet" href="main.css">
 </head>
 
 <body>
-    <div id="info">
-        <a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - FBXLoader<br />
-        Battle Damaged Sci-fi Helmet by
-        <a href="https://sketchfab.com/theblueturtle_" target="_blank" rel="noopener">theblueturtle_</a><br />
-        <a href="https://hdrihaven.com/hdri/?h=pedestrian_overpass" target="_blank" rel="noopener">Pedestrian
-            Overpass</a> by <a href="https://hdrihaven.com/" target="_blank" rel="noopener">HDRI Haven</a>
-    </div>
 
     <script type="module">
 
-        import * as THREE from './build/three.module.js';
+        import * as THREE from './static/js/three/build/three.module.js';
 
-        import Stats from './jsm/libs/stats.module.js';
+        import Stats from './static/js/three/examples/jsm/libs/stats.module.js';
 
-        import { FBXLoader } from './jsm/loaders/FBXLoader.js';
-        import { TGALoader } from './jsm/loaders/TGALoader.js';
-        import { OrbitControls } from './jsm/controls/OrbitControls.js';
+        import { FBXLoader } from './static/js/three/examples/jsm/loaders/FBXLoader.js';
+        import { TGALoader } from './static/js/three/examples/jsm/loaders/TGALoader.js';
+        import { OrbitControls } from './static/js/three/examples/jsm/controls/OrbitControls.js';
 
         var container, stats, controls;
         var camera, scene, renderer, light;
@@ -48,7 +40,7 @@
 
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0xa0a0a0);
-            scene.fog = new THREE.Fog(0xa0a0a0, 200, 1000);
+            // scene.fog = new THREE.Fog(0xa0a0a0, 200, 1000);
 
             light = new THREE.HemisphereLight(0xffffff, 0x444444);
             light.position.set(0, 200, 0);
@@ -88,14 +80,14 @@
             };
 
             var textureLoader = new THREE.TextureLoader(manager);
-            textureLoader.setPath('Cha_AJOJO_001/');
+            textureLoader.setPath('./static/model/');
 
             var tgaLoader = new TGALoader(manager);
             // tgaLoader.setPath('Cha_AJOJO_001/');
             // manager.addHandler(/\.tga$/i, tgaLoader);
 
             var fbxLoader = new FBXLoader(manager);
-            fbxLoader.setPath('Cha_AJOJO_001/');
+            fbxLoader.setPath('./static/model/');
             var file = 'Cha_AJOJO_001_test_191025.fbx';
 
 

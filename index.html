@@ -20,9 +20,10 @@
 <script type="module">
     import CLICK from "./static/js/index.js";
     import * as CONSTANT from "./static/js/constant.js";
-    var click = new CLICK();
-    if (click.checkCompatibility()) {
 
+    var click = new CLICK();
+
+    if (click.checkCompatibility()) {
         click.init();
 
         var normalRoot = click.registerMarker(CONSTANT.HIRO_MARKER_PATTERN);
@@ -34,6 +35,10 @@
         click.loadModel(redRoot, CONSTANT.fbxFile, CONSTANT.pngFile, CONSTANT.tgaFile);
         click.loadModel(greenRoot, CONSTANT.fbxFile, CONSTANT.pngFile, CONSTANT.tgaFile);
         click.loadModel(blueRoot, CONSTANT.fbxFile, CONSTANT.pngFile, CONSTANT.tgaFile);
+        // click.loadDemoBox(normalRoot,0xffff00);
+        // click.loadDemoBox(redRoot, 0xff0000);
+        // click.loadDemoBox(greenRoot, 0x00ff00);
+        // click.loadDemoBox(blueRoot, 0x0000ff);
 
         click.display();
     }
