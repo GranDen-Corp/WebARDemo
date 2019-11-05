@@ -26,15 +26,21 @@
     if (click.checkCompatibility()) {
         click.init();
 
-        var normalRoot = click.registerMarker(CONSTANT.HIRO_MARKER_PATTERN);
+        // var normalRoot = click.registerMarker(CONSTANT.GRANDEN_MARKER_PATTERN);
         var redRoot = click.registerMarker(CONSTANT.PYTHON_MARKER_PATTERN);
         var greenRoot = click.registerMarker(CONSTANT.VSCODE_MARKER_PATTERN);
         var blueRoot = click.registerMarker(CONSTANT.GITHUB_MARKER_PATTERN);
 
-        click.loadModel(normalRoot, CONSTANT.fbxFile, CONSTANT.pngFile, CONSTANT.tgaFile);
-        click.loadModel(redRoot, CONSTANT.fbxFile, CONSTANT.pngFile, CONSTANT.tgaFile);
-        click.loadModel(greenRoot, CONSTANT.fbxFile, CONSTANT.pngFile, CONSTANT.tgaFile);
-        click.loadModel(blueRoot, CONSTANT.fbxFile, CONSTANT.pngFile, CONSTANT.tgaFile);
+        // click.load(normalRoot, CONSTANT.fbxFile, CONSTANT.pngFile, CONSTANT.DESCRIPTION_FILE);
+        click.load(redRoot, CONSTANT.fbxFile, CONSTANT.pngFile, CONSTANT.DESCRIPTION_FILE1);
+        click.load(greenRoot, CONSTANT.fbxFile, CONSTANT.pngFile, CONSTANT.DESCRIPTION_FILE2);
+        click.load(blueRoot, CONSTANT.fbxFile, CONSTANT.pngFile, CONSTANT.DESCRIPTION_FILE3);
+
+        // click.loadModel(normalRoot, CONSTANT.fbxFile, CONSTANT.pngFile, CONSTANT.tgaFile);
+        // click.loadModel(redRoot, CONSTANT.fbxFile, CONSTANT.pngFile, CONSTANT.tgaFile);
+        // click.loadModel(greenRoot, CONSTANT.fbxFile, CONSTANT.pngFile, CONSTANT.tgaFile);
+        // click.loadModel(blueRoot, CONSTANT.fbxFile, CONSTANT.pngFile, CONSTANT.tgaFile);
+        
         // click.loadDemoBox(normalRoot,0xffff00);
         // click.loadDemoBox(redRoot, 0xff0000);
         // click.loadDemoBox(greenRoot, 0x00ff00);

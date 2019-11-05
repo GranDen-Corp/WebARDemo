@@ -4,7 +4,9 @@ import { FBXLoader } from './three/examples/jsm/loaders/FBXLoader.js';
 import { TGALoader } from './three/examples/jsm/loaders/TGALoader.js';
 import { WEBGL } from './three/examples/jsm/WebGL.js';
 
+const descriptionScale = 0.1;
 const modelScale = 0.01;
+const groupScale = 2;
 const minFPS = 24, maxFPS = 60;
 const millisecond = 1000;
 const markerGroup = {};
@@ -132,14 +134,15 @@ export default function CLICK() {
         scene.add(markerRoot);
         var markerControls = new THREEx.ArMarkerControls(arToolkitContext,
             markerRoot, {
+            size: 2,
             type: 'pattern',
             patternUrl: THREEx.ArToolkitContext.baseURL + markerPatternFile,
-            // changeMatrixMode: 'modelViewMatrix',
-            // minConfidence: 0.8,
-            // smooth: true,
-            // smoothCount: 5,
-            // smoothTolerance: 0.01,
-            // smoothThreshold: 2,
+            changeMatrixMode: 'modelViewMatrix',
+            minConfidence: 0.8,
+            smooth: true,
+            smoothCount: 5,
+            smoothTolerance: 0.01,
+            smoothThreshold: 2,
         });
 
         // build a smoothedControls
@@ -161,7 +164,26 @@ export default function CLICK() {
         return smoothedRoot;
     }
 
-    CLICK.prototype.loadModel = function (markerRoot, modelPath, texturePath, tgaPath) {
+    CLICK.prototype.load = function (markerRoot, modelPath, texturePath, descriptionPath) {
+        var group = new THREE.Group();
+
+        this.loadModel(markerRoot, group, modelPath, texturePath);
+        this.loadDescription(markerRoot, group, descriptionPath);
+
+        if (CONSTANT.DEBUG) {
+            group.translateZ(0.5);
+            group.translateY(0.5);
+        }
+        group.rotation.x = -Math.PI / 2;
+
+        group.scale.set(groupScale, groupScale, groupScale);
+        markerRoot.add(group);
+    }
+
+    CLICK.prototype.loadModel = function (markerRoot, group, modelPath, texturePath, tgaPath = undefined) {
+        fbxLoader.setPath(CONSTANT.MODEL_FOLDER);
+        // tgaLoader.setPath(CONSTANT.MODEL_FOLDER);
+
         fbxLoader.load(modelPath, function (model) {
             model.mixer = new THREE.AnimationMixer(model);
 
@@ -179,6 +201,7 @@ export default function CLICK() {
                     child.receiveShadow = true;
 
                     if (texturePath) {
+                        textureLoader.setPath(CONSTANT.MODEL_FOLDER);
                         textureLoader.load(texturePath,
                             function (texture) {
                                 var newMat = new THREE.MeshBasicMaterial();
@@ -205,17 +228,41 @@ export default function CLICK() {
                 }
             });
 
-            if (CONSTANT.DEBUG) {
-                model.translateZ(0.5);
-                model.translateY(0.5);
-                model.rotation.x = -Math.PI / 2;
-            }
             model.scale.set(modelScale, modelScale, modelScale);
-            markerRoot.add(model);
+            group.add(model);
+
+            if (CONSTANT.DEBUG) {
+                var axesHelper = new THREE.AxesHelper(100);
+                group.add(axesHelper);
+            }
+
         }, undefined,
             function (error) {
                 console.error(error);
             });
+    }
+
+    CLICK.prototype.loadDescription = function (markerRoot, group, descriptionPath) {
+        textureLoader.setPath(CONSTANT.IMG_FOLDER);
+
+        var planeGeometry = new THREE.PlaneGeometry(9, 16);
+        var texture = textureLoader.load(descriptionPath);
+        var planeMaterial = new THREE.MeshBasicMaterial({
+            map: texture,
+            // transparent: true,
+            // opacity: 0.5,
+            // color: 0xffffff
+        });
+        var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+
+        plane.receiveShadow = false;
+        plane.translateX(-1);
+        plane.translateY(0.5);
+        plane.translateZ(-0.5);
+        plane.rotation.y = Math.PI / 6;
+        plane.scale.set(descriptionScale, descriptionScale, descriptionScale);
+
+        group.add(plane);
     }
 
     CLICK.prototype.loadDemoBox = function (markerRoot, color) {
@@ -248,14 +295,10 @@ export default function CLICK() {
         };
 
         textureLoader = new THREE.TextureLoader(manager);
-        textureLoader.setPath(CONSTANT.MODEL_FOLDER);
 
         fbxLoader = new FBXLoader(manager);
-        fbxLoader.setPath(CONSTANT.MODEL_FOLDER);
 
         tgaLoader = new TGALoader(manager);
-        tgaLoader.setPath(CONSTANT.MODEL_FOLDER);
-
         // manager.addHandler(/\.tga$/i, tgaLoader);
     }
 
