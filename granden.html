@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="./static/js/three/build/three.min.js"></script>
+    <script src="./static/js/three/examples/js/libs/stats.min.js"></script>
+    <script src="./static/js/ar/three/build/ar.min.js"></script>
+    <script>THREEx.ArToolkitContext.baseURL = './'</script>
+</head>
+
+<body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+
+</body>
+<div id="container">
+
+</div>
+<script type="module">
+    import CLICK from "./static/js/index.js";
+    import * as CONSTANT from "./static/js/constant.js";
+
+    var click = new CLICK();
+
+    if (click.checkCompatibility()) {
+        click.init();
+
+        var GranDenRoot = click.registerMarker(CONSTANT.GRANDEN_MARKER_PATTERN);
+
+        click.load(GranDenRoot, CONSTANT.fbxFile, CONSTANT.pngFile, CONSTANT.GRANDEN_DESCRIPTION_FILE);
+
+        click.display();
+    }
+</script>
+
+</html>
