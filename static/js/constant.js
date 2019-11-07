@@ -10,9 +10,9 @@ export const CAMERA_PARAM = `static/data/camera_para.dat`;
 export const MARKER_FOLDER = `static/marker/pattern`;
 // export const HIRO_MARKER_PATTERN = `${MARKER_FOLDER}/patt.hiro`;
 // export const KANJI_MARKER_PATTERN = `${MARKER_FOLDER}/patt.kanji`;
-export const GRANDEN_MARKER_PATTERN = `${MARKER_FOLDER}/pattern-Python_logo-512.patt`;
+export const GRANDEN_MARKER_PATTERN = `${MARKER_FOLDER}/pattern-granden.patt`;
 export const ALLTON_MARKER_PATTERN = `${MARKER_FOLDER}/pattern-github-512.patt`;
-export const OREADY_MARKER_PATTERN = `${MARKER_FOLDER}/pattern-vs_code_icon.patt`;
+export const OREADY_MARKER_PATTERN = `${MARKER_FOLDER}/pattern-oready.patt`;
 
 export const IMG_FOLDER = `static/img/`;
 export const GRANDEN_DESCRIPTION_FILE = `granden_description.png`;
