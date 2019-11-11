@@ -50,7 +50,7 @@ export default function CLICK() {
 
         // Create a camera
         // camera = new THREE.Camera();
-        camera = new THREE.PerspectiveCamera(100, width / window.height, 0.1, 35000);
+        camera = new THREE.PerspectiveCamera(100, width / height, 0.1, 35000);
         camera.name = 'Camera';
         scene.add(camera);
 
@@ -59,10 +59,10 @@ export default function CLICK() {
         --------------------------------------------------------------------------------*/
         arToolkitSource = new THREEx.ArToolkitSource({
             sourceType: 'webcam',
-            sourceWidth: width,
-            sourceHeight: height,
-            displayWidth: width,
-            displayHeight: height
+            // sourceWidth: width,
+            // sourceHeight: height,
+            // displayWidth: width,
+            // displayHeight: height
         });
 
         arToolkitSource.init(function onReady() {
