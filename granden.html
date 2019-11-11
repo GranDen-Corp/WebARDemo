@@ -12,26 +12,35 @@
 </head>
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
+    <audio id="mybgm" src="static/bgm/BGM01_v3.wav" autoplay loop>Audio tag not supported</audio>
+    <div id="container"></div>
+    <script>
+            (function () {
+                window.onload = function () {
+                    let sound = document.getElementById("mybgm");
+                    sound.currentTime = 0;
+                    sound.loop = true;
+                    sound.play();
+                };
+            })();
+    </script>
+    <script type="module">
 
+        import CLICK from "./static/js/index.js";
+        import * as CONSTANT from "./static/js/constant.js";
+
+        var click = new CLICK();
+
+        if (click.checkCompatibility()) {
+            click.init();
+
+            var GranDenRoot = click.registerMarker(CONSTANT.GRANDEN_MARKER_PATTERN);
+
+            click.load(GranDenRoot, CONSTANT.fbxFile, CONSTANT.pngFile, CONSTANT.GRANDEN_DESCRIPTION_FILE);
+
+            click.display();
+        }
+    </script>
 </body>
-<div id="container">
-
-</div>
-<script type="module">
-    import CLICK from "./static/js/index.js";
-    import * as CONSTANT from "./static/js/constant.js";
-
-    var click = new CLICK();
-
-    if (click.checkCompatibility()) {
-        click.init();
-
-        var GranDenRoot = click.registerMarker(CONSTANT.GRANDEN_MARKER_PATTERN);
-
-        click.load(GranDenRoot, CONSTANT.fbxFile, CONSTANT.pngFile, CONSTANT.GRANDEN_DESCRIPTION_FILE);
-
-        click.display();
-    }
-</script>
 
 </html>
