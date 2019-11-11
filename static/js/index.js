@@ -228,6 +228,8 @@ export default function CLICK() {
                 }
             });
 
+            model.translateX(0.3);
+            model.translateY(-0.5);
             model.scale.set(modelScale, modelScale, modelScale);
             group.add(model);
 
@@ -256,8 +258,8 @@ export default function CLICK() {
         var plane = new THREE.Mesh(planeGeometry, planeMaterial);
 
         plane.receiveShadow = false;
-        plane.translateX(-1);
-        plane.translateY(0.5);
+        plane.translateX(-0.9);
+        plane.translateY(0.3);
         plane.translateZ(-0.5);
         plane.rotation.y = Math.PI / 6;
         plane.scale.set(descriptionScale, descriptionScale, descriptionScale);
