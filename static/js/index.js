@@ -319,6 +319,21 @@ export default function CLICK() {
         }
     }
 
+    CLICK.prototype.playSound = function(playList){
+        var audio = new Audio(), i = 0;
+
+        audio.addEventListener('ended', function () {
+            i = ++i < playList.length ? i : 0;
+            audio.src = playList[i];
+            audio.play();
+        }, true);
+
+        audio.volume = 1;
+        audio.loop = false;
+        audio.src = playList[0];
+        audio.play();
+    }
+
     function animate(nowMsec) {
 
         // measure time
@@ -347,4 +362,5 @@ export default function CLICK() {
             }
         }
     }
+
 }
