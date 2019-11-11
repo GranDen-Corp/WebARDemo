@@ -319,19 +319,24 @@ export default function CLICK() {
         }
     }
 
-    CLICK.prototype.playSound = function(playList){
-        var audio = new Audio(), i = 0;
+    CLICK.prototype.playSound = function (playList) {
+        var audioObj = {};
+        audioObj.nowTrack = 0;
+        audioObj.sourceList = [];
 
-        audio.addEventListener('ended', function () {
-            i = ++i < playList.length ? i : 0;
-            audio.src = playList[i];
-            audio.play();
-        }, true);
+        playList.forEach(function (source) {
+            var audio = new Audio(source);
+            audio.load();
+            audio.addEventListener('ended', function () {
+                audioObj.nowTrack = ++audioObj.nowTrack < playList.length ? audioObj.nowTrack : 0;
+                audioObj.sourceList[audioObj.nowTrack].play();
+            });
+            audioObj.sourceList.push(audio);
+        });
 
-        audio.volume = 1;
-        audio.loop = false;
-        audio.src = playList[0];
-        audio.play();
+        audioObj.sourceList[0].volume = 1;
+        audioObj.sourceList[0].loop = false;
+        audioObj.sourceList[0].play();
     }
 
     function animate(nowMsec) {
