@@ -3,9 +3,9 @@ import * as CONSTANT from './constant.js';
 import { FBXLoader } from './three/examples/jsm/loaders/FBXLoader.js';
 import { WEBGL } from './three/examples/jsm/WebGL.js';
 
-const descriptionScale = 1;
-const modelScale = 0.01;
-const groupScale = 2;
+const descriptionScale = 0.4;
+const modelScale = 0.017;
+const groupScale = 1;
 const minFPS = 24, maxFPS = 60;
 const millisecond = 1000;
 const markerGroup = {};
@@ -31,7 +31,7 @@ export default function CLICK() {
         renderer = new THREE.WebGLRenderer({
             antialias: true,
             alpha: true,
-            powerPreference: 'high-performance',
+            // powerPreference: 'high-performance',
             logarithmicDepthBuffer: true
         });
         renderer.setPixelRatio(window.devicePixelRatio);
@@ -46,7 +46,7 @@ export default function CLICK() {
         // init scene 
         scene = new THREE.Scene();
 
-        camera = new THREE.PerspectiveCamera(100, width / height, 0.1, 35000);
+        camera = new THREE.PerspectiveCamera(60, width / height, 0.1, 35000);
         camera.name = 'Camera';
         scene.add(camera);
 
@@ -128,15 +128,24 @@ export default function CLICK() {
             markerRoot, {
             type: 'pattern',
             patternUrl: THREEx.ArToolkitContext.baseURL + markerPatternFile,
+            changeMatrixMode: 'modelViewMatrix',
+            minConfidence: 0.8,
+            smooth: true,
+            smoothCount: 5,
+            smoothTolerance: 0.01,
+            smoothThreshold: 2,
         });
 
         // build a smoothedControls
         var smoothedRoot = new THREE.Group();
         scene.add(smoothedRoot);
         var smoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
-            lerpPosition: 0.4, 
-            lerpQuaternion: 0.3,
+            lerpPosition: 0.8,
+            lerpQuaternion: 0.2,
             lerpScale: 1,
+            lerpStepDelay: 1 / 60,
+            minVisibleDelay: 0.0,
+            minUnvisibleDelay: 0.2,
         });
 
         markerGroup[markerRoot.uuid] = {
@@ -152,20 +161,13 @@ export default function CLICK() {
         this.loadModel(markerRoot, group, modelPath, texturePath);
         this.loadDescription(markerRoot, group, descriptionPath);
 
-        if (CONSTANT.DEBUG) {
-            group.translateZ(0.5);
-            group.translateY(0.5);
-        }
         group.rotation.x = -Math.PI / 2;
 
-        group.scale.set(groupScale, groupScale, groupScale);
         markerRoot.add(group);
     }
 
     CLICK.prototype.loadModel = function (markerRoot, group, modelPath, texturePath, tgaPath = undefined) {
         fbxLoader.setPath(CONSTANT.MODEL_FOLDER);
-        // tgaLoader.setPath(CONSTANT.MODEL_FOLDER);
-
         fbxLoader.load(modelPath, function (model) {
             model.mixer = new THREE.AnimationMixer(model);
 
@@ -210,8 +212,9 @@ export default function CLICK() {
                 }
             });
 
-            model.translateX(0.3);
-            model.translateY(-0.5);
+            model.translateX(1.7);
+            model.translateY(-1);
+            model.translateZ(1);
             model.scale.set(modelScale, modelScale, modelScale);
             group.add(model);
 
@@ -237,10 +240,10 @@ export default function CLICK() {
         var plane = new THREE.Mesh(planeGeometry, planeMaterial);
 
         plane.receiveShadow = false;
-        plane.translateX(-0.9);
-        plane.translateY(0.3);
-        plane.translateZ(-0.5);
-        plane.rotation.y = Math.PI / 6;
+        plane.translateX(-1);
+        plane.translateY(0.5);
+        plane.translateZ(-1.5);
+        // plane.rotation.y = Math.PI / 6;
         plane.scale.set(descriptionScale, descriptionScale, descriptionScale);
 
         group.add(plane);

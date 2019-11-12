@@ -9,11 +9,11 @@ export const CAMERA_PARAM = `static/data/camera_para.dat`;
 
 export const MARKER_FOLDER = `static/marker/pattern/`;
 export const GRANDEN_MARKER_PATTERN = `${MARKER_FOLDER}pattern-granden.patt`;
-export const ALLTON_MARKER_PATTERN = `${MARKER_FOLDER}pattern-allton2.patt`;
-export const OREADY_MARKER_PATTERN = `${MARKER_FOLDER}pattern-oready2.patt`;
+export const ALLTON_MARKER_PATTERN = `${MARKER_FOLDER}pattern-allton.patt`;
+export const OREADY_MARKER_PATTERN = `${MARKER_FOLDER}pattern-oready.patt`;
 
 export const IMG_FOLDER = `static/img/`;
-export const GRANDEN_DESCRIPTION_FILE = `granden_description.png`;
+export const GRANDEN_DESCRIPTION_FILE = `granden_description2.jpg`;
 export const ALLTON_DESCRIPTION_FILE = `allton_description.png`;
 export const OREADY_DESCRIPTION_FILE = `oready_description.png`;
 
