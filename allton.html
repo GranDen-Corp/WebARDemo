@@ -12,18 +12,7 @@
 </head>
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'>
-    <audio id="mybgm" src="static/bgm/BGM01_v3.ogg" autoplay loop>Audio tag not supported</audio>
     <div id="container"></div>
-    <script>
-            (function () {
-                window.onload = function () {
-                    let sound = document.getElementById("mybgm");
-                    sound.currentTime = 0;
-                    sound.loop = true;
-                    sound.play();
-                };
-            })();
-    </script>
     <script type="module">
         import CLICK from "./static/js/index.js";
         import * as CONSTANT from "./static/js/constant.js";
@@ -38,6 +27,11 @@
             click.load(AlltonRoot, CONSTANT.fbxFile, CONSTANT.pngFile, CONSTANT.ALLTON_DESCRIPTION_FILE);
 
             click.display();
+
+            window.onload = function () {
+                click.playSound(bgmList);
+                click.playSound(voiceList);
+            }
         }
     </script>
 </body>

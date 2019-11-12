@@ -1,10 +1,9 @@
 import * as THREE from './three/build/three.module.js';
 import * as CONSTANT from './constant.js';
 import { FBXLoader } from './three/examples/jsm/loaders/FBXLoader.js';
-import { TGALoader } from './three/examples/jsm/loaders/TGALoader.js';
 import { WEBGL } from './three/examples/jsm/WebGL.js';
 
-const descriptionScale = 0.1;
+const descriptionScale = 1;
 const modelScale = 0.01;
 const groupScale = 2;
 const minFPS = 24, maxFPS = 60;
@@ -17,7 +16,7 @@ const width = window.innerWidth, height = window.innerHeight;
 var lastTimeMsec = null;
 var scene, camera, renderer, stats;
 var arToolkitContext, arToolkitSource;
-var manager, fbxLoader, textureLoader, tgaLoader;
+var manager, fbxLoader, textureLoader;
 
 export default function CLICK() {
 
@@ -32,13 +31,12 @@ export default function CLICK() {
         renderer = new THREE.WebGLRenderer({
             antialias: true,
             alpha: true,
-            // powerPreference: 'high-performance',
+            powerPreference: 'high-performance',
             logarithmicDepthBuffer: true
         });
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(width, height);
         renderer.shadowMap.enabled = true;
-        // renderer.debug.checkShaderErrors = true;
         container.appendChild(renderer.domElement);
 
         /*--------------------------------------------------------------------------------
@@ -48,8 +46,6 @@ export default function CLICK() {
         // init scene 
         scene = new THREE.Scene();
 
-        // Create a camera
-        // camera = new THREE.Camera();
         camera = new THREE.PerspectiveCamera(100, width / height, 0.1, 35000);
         camera.name = 'Camera';
         scene.add(camera);
@@ -59,10 +55,6 @@ export default function CLICK() {
         --------------------------------------------------------------------------------*/
         arToolkitSource = new THREEx.ArToolkitSource({
             sourceType: 'webcam',
-            // sourceWidth: width,
-            // sourceHeight: height,
-            // displayWidth: width,
-            // displayHeight: height
         });
 
         arToolkitSource.init(function onReady() {
@@ -74,7 +66,7 @@ export default function CLICK() {
         --------------------------------------------------------------------------------*/
         // create atToolkitContext
         arToolkitContext = new THREEx.ArToolkitContext({
-            // debug: CONSTANT.DEBUG,
+            debug: CONSTANT.DEBUG,
             cameraParametersUrl: THREEx.ArToolkitContext.baseURL + CONSTANT.CAMERA_PARAM,
             detectionMode: 'mono'
         });
@@ -134,27 +126,17 @@ export default function CLICK() {
         scene.add(markerRoot);
         var markerControls = new THREEx.ArMarkerControls(arToolkitContext,
             markerRoot, {
-            size: 2,
             type: 'pattern',
             patternUrl: THREEx.ArToolkitContext.baseURL + markerPatternFile,
-            changeMatrixMode: 'modelViewMatrix',
-            minConfidence: 0.8,
-            smooth: true,
-            smoothCount: 5,
-            smoothTolerance: 0.01,
-            smoothThreshold: 2,
         });
 
         // build a smoothedControls
         var smoothedRoot = new THREE.Group();
         scene.add(smoothedRoot);
         var smoothedControls = new THREEx.ArSmoothedControls(smoothedRoot, {
-            lerpPosition: 0.4, // 0.8
-            lerpQuaternion: 0.3, // 0.2
+            lerpPosition: 0.4, 
+            lerpQuaternion: 0.3,
             lerpScale: 1,
-            // lerpStepDelay: 1 / 60,
-            // minVisibleDelay: 0.0,
-            // minUnvisibleDelay: 0.2,
         });
 
         markerGroup[markerRoot.uuid] = {
@@ -251,9 +233,6 @@ export default function CLICK() {
         var texture = textureLoader.load(descriptionPath);
         var planeMaterial = new THREE.MeshBasicMaterial({
             map: texture,
-            // transparent: true,
-            // opacity: 0.5,
-            // color: 0xffffff
         });
         var plane = new THREE.Mesh(planeGeometry, planeMaterial);
 
@@ -299,9 +278,6 @@ export default function CLICK() {
         textureLoader = new THREE.TextureLoader(manager);
 
         fbxLoader = new FBXLoader(manager);
-
-        tgaLoader = new TGALoader(manager);
-        // manager.addHandler(/\.tga$/i, tgaLoader);
     }
 
     CLICK.prototype.display = function () {
